@@ -1,0 +1,8 @@
+zookeeper-data:
+  scale: 1
+kafka-data:
+  scale: 1
+zookeeper:
+  scale: 1
+kafka:
+  scale: 1

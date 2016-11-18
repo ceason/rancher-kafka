@@ -1,0 +1,42 @@
+base:
+  build: .
+  volumes:
+    - ./etc/kafka:/etc/kafka:ro
+
+zookeeper-data:
+  extends: busybox
+  volumes:
+    - /zk-data
+  labels:
+    io.rancher.container.start_once: 'true'
+
+kafka-data:
+  extends: busybox
+  volumes:
+    - /kafka-data
+  labels:
+    io.rancher.container.start_once: 'true'
+
+zookeeper:
+  extends: base
+  hostname: confluent-zookeeper
+  command: zookeeper-server-start /etc/kafka/zookeeper.properties
+  volumes_from:
+    - "zookeeper-data"
+  labels:
+    io.rancher.sidekicks: zookeeper-data
+
+
+kafka:
+  extends: base
+  hostname: confluent-kafka
+  command: kafka-server-start /etc/kafka/server.properties
+  links:
+    - "zookeeper"
+  volumes_from:
+    - "kafka-data"
+  labels:
+    io.rancher.sidekicks: kafka-data
+    io.rancher.container.dns: 'true'
+  net: host
+
