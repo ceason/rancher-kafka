@@ -15,7 +15,6 @@ kafka-data:
 
 zookeeper:
   build: https://github.com/ceason/rancher-kafka.git
-  hostname: confluent-zookeeper
   command: zookeeper-server-start /etc/kafka/zookeeper.properties
   ports:
     - "2181:2181"
@@ -23,11 +22,11 @@ zookeeper:
     - "zookeeper-data"
   labels:
     io.rancher.sidekicks: zookeeper-data
+    io.rancher.container.pull_image: always
 
 
 kafka:
   build: https://github.com/ceason/rancher-kafka.git
-  hostname: confluent-kafka
   command: kafka-server-start /etc/kafka/server.properties
   links:
     - "zookeeper"
@@ -36,16 +35,19 @@ kafka:
   labels:
     io.rancher.sidekicks: kafka-data
     io.rancher.container.dns: 'true'
+    io.rancher.container.pull_image: always
   net: host
 
 kafka-manager:
   image: sheepkiller/kafka-manager
-  ports:
-    - 9000:9000/tcp
-  environment:
-    APPLICATION_SECRET: letmein
-    ZK_HOSTS: confluent-zookeeper:2181
-  labels:
-    io.rancher.container.pull_image: always
   command:
   - -Djava.net.preferIPv4Stack=true
+  ports:
+    - 9000:9000/tcp
+  links:
+    - "zookeeper"
+  environment:
+    APPLICATION_SECRET: letmein
+    ZK_HOSTS: zookeeper:2181
+  labels:
+    io.rancher.container.pull_image: always
