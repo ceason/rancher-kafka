@@ -6,3 +6,5 @@ zookeeper:
   scale: 1
 kafka:
   scale: 1
+kafka-manager:
+  scale: 1
